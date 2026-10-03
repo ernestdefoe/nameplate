@@ -3,7 +3,7 @@
 The member's panel beside every post, the way traditional forums have always
 shown it: who wrote this, and who they are on this forum.
 
-![A post with the member's panel under the avatar: posts, likes and join date](screenshots/panel.png)
+![A post with the member's panel under the avatar: their rank, post count and join date](screenshots/panel.png)
 
 Under each author's avatar:
 

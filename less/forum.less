@@ -1,0 +1,111 @@
+// ── Nameplate ───────────────────────────────────────────────────────────────
+// Theme colours only, so it sits in any theme without settings of its own.
+
+// The side panel, under the avatar. Core lays a post out as a grid whose first
+// column is `--avatar-column-width`; widening THAT makes room for the panel.
+// 🚨 Widening .Post-side itself instead let the panel spill over the post body,
+// because the grid column stayed the width of the avatar.
+@media (min-width: 768px) {
+  .CommentPost.Nameplate--side {
+    --avatar-column-width: 140px;
+
+    .Post-side {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-right: 14px;
+    }
+
+    .Nameplate-line {
+      display: none;
+    }
+  }
+}
+
+// A phone has no side column (core hides it and puts the avatar in the
+// header), so the one-line form is the only one shown there.
+@media (max-width: 767.98px) {
+  .Nameplate {
+    display: none;
+  }
+}
+
+.Nameplate {
+  margin-top: 10px;
+  width: 100%;
+  text-align: center;
+  font-size: 0.78rem;
+}
+
+.Nameplate-ranks {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.Nameplate-rank {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  line-height: 1.5;
+  color: #fff;
+  background: var(--nameplate-rank, var(--muted-color));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.Nameplate-facts {
+  margin: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.Nameplate-fact {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+
+  dt {
+    color: var(--muted-color);
+  }
+
+  dd {
+    margin: 0;
+    font-weight: 700;
+    color: var(--text-color, var(--body-color));
+  }
+}
+
+// The one-line form, under the author's name.
+.Nameplate-line {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+  font-size: 0.78rem;
+  color: var(--muted-color);
+
+  .Nameplate-rank {
+    font-size: 0.68rem;
+    padding: 1px 7px;
+  }
+}
+
+.Nameplate-lineFact .icon {
+  margin-right: 2px;
+  opacity: 0.8;
+}
+
+// FoF Signature's block, when this post should not repeat it, or the reader
+// asked not to see signatures at all.
+.CommentPost.Nameplate--noSignature .Post-signature {
+  display: none;
+}

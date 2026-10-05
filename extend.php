@@ -46,11 +46,14 @@ $extenders = [
  * than a missing number.
  */
 if (class_exists(\Flarum\Likes\Event\PostWasLiked::class)) {
+    $extenders[] = (new Extend\ServiceProvider())
+        ->register(\Ernestdefoe\Nameplate\NameplateServiceProvider::class);
+
     $extenders[] = (new Extend\ApiResource(UserResource::class))
         ->fields(fn () => [
             Attribute::make('nameplateLikesReceived')
                 ->get(fn ($user) => resolve('flarum.settings')->get('ernestdefoe-nameplate.show_likes')
-                    ? resolve(LikesReceived::class)->for((int) $user->id)
+                    ? resolve(LikesReceived::class)->defer((int) $user->id)
                     : null),
         ]);
 

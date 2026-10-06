@@ -59,6 +59,11 @@ composer update ernestdefoe/nameplate
 php flarum cache:clear
 ```
 
+## Support
+
+- **Support forum:** [Nameplate on ernestdefoe.online](https://ernestdefoe.online/d/111)
+- **Bug reports:** [GitHub issues](https://github.com/ernestdefoe/nameplate/issues)
+
 ## Licence
 
 MIT.

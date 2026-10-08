@@ -120,6 +120,6 @@ class LikesReceived
 
     private function key(int $userId): string
     {
-        return 'ernestdefoe-nameplate.likes.' . $userId;
+        return 'ernestdefoe-nameplate.likes.'.$userId;
     }
 }

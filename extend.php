@@ -41,25 +41,29 @@ $extenders = [
 ];
 
 /*
- * Likes received — only where flarum/likes is installed. Guarded on its event
- * class: naming it on a forum without the extension is a fatal at boot rather
- * than a missing number.
+ * Likes received — only where flarum/likes is ENABLED.
+ *
+ * 🚨 Not merely installed: it ships with Flarum, so its classes load on forums
+ * that have it switched off, and on one that never enabled it there is no
+ * post_likes table — counting from it failed every response with a member in
+ * it.
  */
-if (class_exists(\Flarum\Likes\Event\PostWasLiked::class)) {
-    $extenders[] = (new Extend\ServiceProvider())
-        ->register(\Ernestdefoe\Nameplate\NameplateServiceProvider::class);
+$extenders[] = (new Extend\Conditional())
+    ->whenExtensionEnabled('flarum-likes', fn () => [
+        (new Extend\ServiceProvider())
+            ->register(\Ernestdefoe\Nameplate\NameplateServiceProvider::class),
 
-    $extenders[] = (new Extend\ApiResource(UserResource::class))
-        ->fields(fn () => [
-            Attribute::make('nameplateLikesReceived')
-                ->get(fn ($user) => resolve('flarum.settings')->get('ernestdefoe-nameplate.show_likes')
-                    ? resolve(LikesReceived::class)->defer((int) $user->id)
-                    : null),
-        ]);
+        (new Extend\ApiResource(UserResource::class))
+            ->fields(fn () => [
+                Attribute::make('nameplateLikesReceived')
+                    ->get(fn ($user) => resolve('flarum.settings')->get('ernestdefoe-nameplate.show_likes')
+                        ? resolve(LikesReceived::class)->defer((int) $user->id)
+                        : null),
+            ]),
 
-    $extenders[] = (new Extend\Event())
-        ->listen(\Flarum\Likes\Event\PostWasLiked::class, ForgetOnLike::class)
-        ->listen(\Flarum\Likes\Event\PostWasUnliked::class, ForgetOnLike::class);
-}
+        (new Extend\Event())
+            ->listen(\Flarum\Likes\Event\PostWasLiked::class, ForgetOnLike::class)
+            ->listen(\Flarum\Likes\Event\PostWasUnliked::class, ForgetOnLike::class),
+    ]);
 
 return $extenders;

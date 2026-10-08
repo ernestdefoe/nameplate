@@ -18,8 +18,18 @@ app.initializers.add('ernestdefoe-nameplate', () => {
     .registerSetting({ setting: 'ernestdefoe-nameplate.show_posts', type: 'boolean', label: t('show_posts') })
     .registerSetting({ setting: 'ernestdefoe-nameplate.show_discussions', type: 'boolean', label: t('show_discussions') })
     .registerSetting({ setting: 'ernestdefoe-nameplate.show_likes', type: 'boolean', label: t('show_likes'), help: t('show_likes_help') })
-    .registerSetting({ setting: 'ernestdefoe-nameplate.show_best_answers', type: 'boolean', label: t('show_best_answers'), help: t('show_best_answers_help') })
+    .registerSetting({
+      setting: 'ernestdefoe-nameplate.show_best_answers',
+      type: 'boolean',
+      label: t('show_best_answers'),
+      help: t('show_best_answers_help'),
+    })
     .registerSetting({ setting: 'ernestdefoe-nameplate.show_joined', type: 'boolean', label: t('show_joined') })
     .registerSetting(() => <h3 className="NameplateAdmin-heading">{t('signatures_heading')}</h3>)
-    .registerSetting({ setting: 'ernestdefoe-nameplate.signature_once', type: 'boolean', label: t('signature_once'), help: t('signature_once_help') });
+    .registerSetting({
+      setting: 'ernestdefoe-nameplate.signature_once',
+      type: 'boolean',
+      label: t('signature_once'),
+      help: t('signature_once_help'),
+    });
 });

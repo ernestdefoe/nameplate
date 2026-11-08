@@ -10,17 +10,17 @@ const t = (key, params) => app.translator.trans(`ernestdefoe-nameplate.forum.${k
 const on = (attr) => app.forum.attribute(attr) !== false;
 
 /**
- * The member's ranks: their visible groups. Ladder's ranks ARE groups, so a
+ * The member's ranks: ALL their visible groups. Ladder's ranks ARE groups, so a
  * forum running Ladder gets its ranks here without either knowing the other.
+ * Never cap the list: the side layout hides core's badge row, so a group left
+ * out here shows nowhere on the post.
  */
 function ranks(user) {
-  let groups = [];
   try {
-    groups = (user.groups() || []).filter((g) => g && !g.isHidden());
+    return (user.groups() || []).filter((g) => g && !g.isHidden());
   } catch (e) {
     return [];
   }
-  return groups.slice(0, 2);
 }
 
 /** The facts, in the order a traditional forum lists them, each only if known and switched on. */

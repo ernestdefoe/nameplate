@@ -20,6 +20,35 @@
       display: none;
     }
   }
+
+  // Renown's rank is in the panel: its badge beside the name would say it twice.
+  .CommentPost.Nameplate--side.Nameplate--renown .Post-header .item-renown {
+    display: none;
+  }
+}
+
+.Nameplate-renown {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  margin-bottom: 8px;
+  color: var(--text-color);
+}
+.Nameplate-renownArt {
+  display: inline-flex;
+  align-items: flex-start;
+  gap: 4px;
+  margin-bottom: 2px;
+}
+.Nameplate-renownRank {
+  font-weight: 700;
+  font-size: 0.78rem;
+  color: var(--text-color);
+}
+.Nameplate-renownLevel {
+  font-size: 0.7rem;
+  color: var(--muted-color);
 }
 
 // A phone has no side column (core hides it and puts the avatar in the

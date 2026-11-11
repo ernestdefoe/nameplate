@@ -49,6 +49,48 @@ function facts(user) {
   return out;
 }
 
+/**
+ * Renown's insignia, rank and level, when Renown is installed. Its drawing
+ * comes from Renown's own modules through Flarum's registry, so Nameplate
+ * needs nothing of Renown's to run, and draws nothing when it isn't there.
+ */
+function renownModules() {
+  const get = (name) => {
+    try {
+      const mod = flarum.reg.get('ernestdefoe-renown', name);
+      return mod && (mod.default || mod);
+    } catch (e) {
+      return null;
+    }
+  };
+  const Insignia = get('common/Insignia');
+  const Emblem = get('common/Emblem');
+  const names = get('common/names');
+  return Insignia && Emblem && names && names.levelLabel ? { Insignia, Emblem, names } : null;
+}
+
+function renown(user) {
+  if (!on('nameplateRenown')) return null;
+  const r = renownModules();
+  const level = user.attribute('renownLevel');
+  if (!r || typeof level !== 'number') return null;
+  const prestige = user.attribute('renownPrestige') || 0;
+
+  return (
+    <div className="Nameplate-renown">
+      <span className="Nameplate-renownArt">
+        <r.Insignia level={level} size={40} grade decorative />
+        {prestige > 0 ? <r.Emblem tier={prestige} size={24} decorative /> : null}
+      </span>
+      <span className="Nameplate-renownRank">{r.names.levelLabel(level)}</span>
+      <span className="Nameplate-renownLevel">
+        {t('renown_level', { level })}
+        {prestige > 0 ? <> · {r.names.tierName(prestige)}</> : null}
+      </span>
+    </div>
+  );
+}
+
 function rankLabel(group) {
   const color = group.color();
   return (
@@ -63,10 +105,12 @@ function rankLabel(group) {
 function panel(user) {
   const list = facts(user);
   const rankList = on('nameplateRank') ? ranks(user) : [];
-  if (!list.length && !rankList.length) return null;
+  const climb = renown(user);
+  if (!list.length && !rankList.length && !climb) return null;
 
   return (
     <div className="Nameplate">
+      {climb}
       {rankList.length ? <div className="Nameplate-ranks">{rankList.map(rankLabel)}</div> : null}
       {list.length ? (
         <dl className="Nameplate-facts">
@@ -155,7 +199,12 @@ app.initializers.add('ernestdefoe-nameplate', () => {
   extend(CommentPost.prototype, 'elementAttrs', function (attrs) {
     const classes = [attrs.className || ''];
 
-    if (app.forum.attribute('nameplateLayout') !== 'header') classes.push('Nameplate--side');
+    if (app.forum.attribute('nameplateLayout') !== 'header') {
+      classes.push('Nameplate--side');
+      // The panel shows Renown's rank, so its own badge beside the name steps aside (desktop only: phones have no panel).
+      const user = this.attrs.post.user && this.attrs.post.user();
+      if (user && on('nameplateRenown') && typeof user.attribute('renownLevel') === 'number' && renownModules()) classes.push('Nameplate--renown');
+    }
 
     const me = app.session.user;
     const hideAll = me && me.preferences() && me.preferences().nameplateHideSignatures;

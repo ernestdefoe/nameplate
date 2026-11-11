@@ -5,6 +5,7 @@ ernestdefoe-nameplate:
     likes: Likes
     best_answers: Best answers
     joined: Joined
+    renown_level: "Level {level}"
     settings:
       heading: Reading
       hide_signatures: Hide signatures
@@ -17,6 +18,8 @@ ernestdefoe-nameplate:
     show_heading: Show
     show_rank: Rank
     show_rank_help: "The member's visible groups — including Ladder's ranks, which are groups."
+    show_renown: Renown rank
+    show_renown_help: "With Renown installed: the member's insignia, rank and level (and Prestige emblem) at the top of the panel. Renown's own badge beside the name steps aside on wide screens."
     show_posts: Post count
     show_discussions: Discussion count
     show_likes: Likes received

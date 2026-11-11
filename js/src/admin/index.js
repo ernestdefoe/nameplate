@@ -15,6 +15,7 @@ app.initializers.add('ernestdefoe-nameplate', () => {
     })
     .registerSetting(() => <h3 className="NameplateAdmin-heading">{t('show_heading')}</h3>)
     .registerSetting({ setting: 'ernestdefoe-nameplate.show_rank', type: 'boolean', label: t('show_rank'), help: t('show_rank_help') })
+    .registerSetting({ setting: 'ernestdefoe-nameplate.show_renown', type: 'boolean', label: t('show_renown'), help: t('show_renown_help') })
     .registerSetting({ setting: 'ernestdefoe-nameplate.show_posts', type: 'boolean', label: t('show_posts') })
     .registerSetting({ setting: 'ernestdefoe-nameplate.show_discussions', type: 'boolean', label: t('show_discussions') })
     .registerSetting({ setting: 'ernestdefoe-nameplate.show_likes', type: 'boolean', label: t('show_likes'), help: t('show_likes_help') })

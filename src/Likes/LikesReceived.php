@@ -3,7 +3,7 @@
 namespace Ernestdefoe\Nameplate\Likes;
 
 use Illuminate\Contracts\Cache\Repository as Cache;
-use Illuminate\Database\ConnectionInterface;
+use Flarum\Post\Post;
 
 /**
  * How many likes a member's posts have received, for the panel beside their
@@ -15,7 +15,7 @@ use Illuminate\Database\ConnectionInterface;
  * largest table on a busy forum. With the cache, a count is worked out once
  * and stays right without being worked out again.
  *
- * Through the query builder only — never raw SQL — so a forum with a table
+ * Through the Post model only — never raw SQL — so a forum with a table
  * prefix gets the right tables.
  */
 class LikesReceived
@@ -23,7 +23,6 @@ class LikesReceived
     private const TTL = 86400;
 
     public function __construct(
-        protected ConnectionInterface $db,
         protected Cache $cache,
     ) {
     }
@@ -37,7 +36,7 @@ class LikesReceived
     public function for(int $userId): int
     {
         $this->pending[$userId] = true;
-        $this->resolve();
+        $this->loadPending();
 
         return $this->known[$userId] ?? 0;
     }
@@ -56,13 +55,13 @@ class LikesReceived
         $this->pending[$userId] = true;
 
         return function () use ($userId): int {
-            $this->resolve();
+            $this->loadPending();
 
             return $this->known[$userId] ?? 0;
         };
     }
 
-    private function resolve(): void
+    private function loadPending(): void
     {
         $ids = array_keys(array_diff_key($this->pending, $this->known));
         $this->pending = [];
@@ -89,8 +88,8 @@ class LikesReceived
             return;
         }
 
-        $counts = $this->db->table('post_likes')
-            ->join('posts', 'posts.id', '=', 'post_likes.post_id')
+        $counts = Post::query()
+            ->join('post_likes', 'post_likes.post_id', '=', 'posts.id')
             ->whereIn('posts.user_id', $missing)
             ->whereNull('posts.hidden_at')
             ->where('posts.type', 'comment')

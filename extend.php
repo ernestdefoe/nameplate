@@ -1,9 +1,8 @@
 <?php
 
+use Ernestdefoe\Nameplate\Api\UserFields;
 use Ernestdefoe\Nameplate\Likes\ForgetOnLike;
-use Ernestdefoe\Nameplate\Likes\LikesReceived;
 use Flarum\Api\Resource\UserResource;
-use Flarum\Api\Schema\Attribute;
 use Flarum\Extend;
 
 $extenders = [
@@ -56,12 +55,7 @@ $extenders[] = (new Extend\Conditional())
             ->register(\Ernestdefoe\Nameplate\NameplateServiceProvider::class),
 
         (new Extend\ApiResource(UserResource::class))
-            ->fields(fn () => [
-                Attribute::make('nameplateLikesReceived')
-                    ->get(fn ($user) => resolve('flarum.settings')->get('ernestdefoe-nameplate.show_likes')
-                        ? resolve(LikesReceived::class)->defer((int) $user->id)
-                        : null),
-            ]),
+            ->fields(UserFields::class),
 
         (new Extend\Event())
             ->listen(\Flarum\Likes\Event\PostWasLiked::class, ForgetOnLike::class)

@@ -5,9 +5,17 @@ import Icon from 'flarum/common/components/Icon';
 import extractText from 'flarum/common/utils/extractText';
 import Switch from 'flarum/common/components/Switch';
 import FieldSet from 'flarum/common/components/FieldSet';
+import type Mithril from 'mithril';
+import type User from 'flarum/common/models/User';
+import type Group from 'flarum/common/models/Group';
+import type Post from 'flarum/common/models/Post';
+import type ItemList from 'flarum/common/utils/ItemList';
 
-const t = (key, params) => app.translator.trans(`ernestdefoe-nameplate.forum.${key}`, params);
-const on = (attr) => app.forum.attribute(attr) !== false;
+type Fact = { key: string; icon: string; label: Mithril.Children; value: string };
+type RenownModules = { Insignia: any; Emblem: any; names: { levelLabel(level: number): string; tierName(tier: number): string } };
+
+const t = (key: string, params: Record<string, unknown> = {}) => app.translator.trans(`ernestdefoe-nameplate.forum.${key}`, params);
+const on = (attr: string) => app.forum.attribute(attr) !== false;
 
 /**
  * The member's ranks: ALL their visible groups. Ladder's ranks ARE groups, so a
@@ -15,24 +23,22 @@ const on = (attr) => app.forum.attribute(attr) !== false;
  * Never cap the list: the side layout hides core's badge row, so a group left
  * out here shows nowhere on the post.
  */
-function ranks(user) {
-  try {
-    return (user.groups() || []).filter((g) => g && !g.isHidden());
-  } catch (e) {
-    return [];
-  }
+function ranks(user: User): Group[] {
+  return ((user.groups() || []) as (Group | undefined)[]).filter((g): g is Group => !!g && !g.isHidden());
 }
 
 /** The facts, in the order a traditional forum lists them, each only if known and switched on. */
-function facts(user) {
-  const out = [];
-  const num = (n) => Number(n).toLocaleString();
+function facts(user: User): Fact[] {
+  const out: Fact[] = [];
+  const num = (n: number) => Number(n).toLocaleString();
 
-  if (on('nameplatePosts') && typeof user.commentCount() === 'number') {
-    out.push({ key: 'posts', icon: 'far fa-comment', label: t('posts'), value: num(user.commentCount()) });
+  const posts = user.commentCount();
+  if (on('nameplatePosts') && typeof posts === 'number') {
+    out.push({ key: 'posts', icon: 'far fa-comment', label: t('posts'), value: num(posts) });
   }
-  if (on('nameplateDiscussions') && typeof user.discussionCount() === 'number') {
-    out.push({ key: 'discussions', icon: 'far fa-comments', label: t('discussions'), value: num(user.discussionCount()) });
+  const discussions = user.discussionCount();
+  if (on('nameplateDiscussions') && typeof discussions === 'number') {
+    out.push({ key: 'discussions', icon: 'far fa-comments', label: t('discussions'), value: num(discussions) });
   }
   const likes = user.attribute('nameplateLikesReceived');
   if (on('nameplateLikes') && typeof likes === 'number') {
@@ -56,10 +62,13 @@ function facts(user) {
  * Looked up once: every extension's modules are registered before the first
  * post renders, and this runs twice for every post on the page.
  */
-let renownCache;
-function renownModules() {
+let renownCache: RenownModules | null | undefined;
+function renownModules(): RenownModules | null {
   if (renownCache !== undefined) return renownCache;
-  const get = (name) => {
+  if (!('ernestdefoe-renown' in (flarum.extensions || {}))) return (renownCache = null);
+  const get = (name: string): any => {
+    // An older Renown without these modules: flarum.reg.get throws in debug
+    // mode. Nameplate then draws no Renown line, which is the right fallback.
     try {
       const mod = flarum.reg.get('ernestdefoe-renown', name);
       return mod && (mod.default || mod);
@@ -73,12 +82,12 @@ function renownModules() {
   return (renownCache = Insignia && Emblem && names && names.levelLabel ? { Insignia, Emblem, names } : null);
 }
 
-function renown(user) {
+function renown(user: User) {
   if (!on('nameplateRenown')) return null;
   const r = renownModules();
-  const level = user.attribute('renownLevel');
+  const level = user.attribute<number | undefined>('renownLevel');
   if (!r || typeof level !== 'number') return null;
-  const prestige = user.attribute('renownPrestige') || 0;
+  const prestige = user.attribute<number | undefined>('renownPrestige') || 0;
 
   return (
     <div className="Nameplate-renown">
@@ -95,7 +104,7 @@ function renown(user) {
   );
 }
 
-function rankLabel(group) {
+function rankLabel(group: Group) {
   const color = group.color();
   return (
     <span className="Nameplate-rank" style={color ? { '--nameplate-rank': color } : undefined}>
@@ -106,7 +115,7 @@ function rankLabel(group) {
 }
 
 /** The classic panel, under the avatar in the post's side column. */
-function panel(user) {
+function panel(user: User) {
   const list = facts(user);
   const rankList = on('nameplateRank') ? ranks(user) : [];
   const climb = renown(user);
@@ -134,7 +143,7 @@ function panel(user) {
  * The same facts as one line under the name — the compact layout, and what a
  * phone shows, where there is no side column to put a panel in.
  */
-function line(user) {
+function line(user: User) {
   const list = facts(user);
   const rankList = on('nameplateRank') ? ranks(user) : [];
   if (!list.length && !rankList.length) return null;
@@ -165,9 +174,9 @@ function line(user) {
  * page mixing discussions — a member's Posts tab, search — still keeps the
  * first signature per discussion. Scrolling a discussion keeps its page.
  */
-const firstPost = new Map();
-let firstPostPage = null;
-function repeatsSignature(post) {
+const firstPost = new Map<string, number>();
+let firstPostPage: unknown = null;
+function repeatsSignature(post: Post): boolean {
   const user = post.user && post.user();
   const discussion = post.discussion && post.discussion();
   if (!user || !discussion) return false;
@@ -190,7 +199,7 @@ function repeatsSignature(post) {
 }
 
 app.initializers.add('ernestdefoe-nameplate', () => {
-  extend(CommentPost.prototype, 'sideItems', function (items) {
+  extend(CommentPost.prototype, 'sideItems', function (items: ItemList<Mithril.Children>) {
     if (app.forum.attribute('nameplateLayout') === 'header') return;
     const user = this.attrs.post.user();
     if (!user) return;
@@ -199,7 +208,7 @@ app.initializers.add('ernestdefoe-nameplate', () => {
     if (block) items.add('nameplate', block, 90);
   });
 
-  extend(CommentPost.prototype, 'headerItems', function (items) {
+  extend(CommentPost.prototype, 'headerItems', function (items: ItemList<Mithril.Children>) {
     const user = this.attrs.post.user();
     if (!user) return;
 
@@ -212,7 +221,7 @@ app.initializers.add('ernestdefoe-nameplate', () => {
    * to its element afterwards — Mithril rewrites the class list on the next
    * redraw and an added class vanishes.
    */
-  extend(CommentPost.prototype, 'elementAttrs', function (attrs) {
+  extend(CommentPost.prototype, 'elementAttrs', function (attrs: Record<string, any>) {
     const classes = [attrs.className || ''];
 
     if (app.forum.attribute('nameplateLayout') !== 'header') {
@@ -223,7 +232,7 @@ app.initializers.add('ernestdefoe-nameplate', () => {
     }
 
     const me = app.session.user;
-    const hideAll = me && me.preferences() && me.preferences().nameplateHideSignatures;
+    const hideAll = !!me?.preferences()?.nameplateHideSignatures;
     if (hideAll || (on('nameplateSignatureOnce') && repeatsSignature(this.attrs.post))) {
       classes.push('Nameplate--noSignature');
     }
@@ -236,7 +245,7 @@ app.initializers.add('ernestdefoe-nameplate', () => {
    * FoF Signature: on any other it would switch off something that is not
    * there. By path, because Flarum 2 loads the settings page on demand.
    */
-  extend('flarum/forum/components/SettingsPage', 'settingsItems', function (items) {
+  extend('flarum/forum/components/SettingsPage', 'settingsItems', function (this: any, items: ItemList<Mithril.Children>) {
     if (!('fof-signature' in (flarum.extensions || {}))) return;
 
     const user = this.user;
@@ -247,9 +256,10 @@ app.initializers.add('ernestdefoe-nameplate', () => {
         <Switch
           state={!!(user.preferences() || {}).nameplateHideSignatures}
           loading={this.nameplateSaving}
-          onchange={(value) => {
+          onchange={(value: boolean) => {
             this.nameplateSaving = true;
-            user.savePreferences({ nameplateHideSignatures: value }).then(() => {
+            // A failed save shows core's own error alert; the switch just stops spinning.
+            user.savePreferences({ nameplateHideSignatures: value }).finally(() => {
               this.nameplateSaving = false;
               m.redraw();
             });

@@ -11,6 +11,7 @@ class NameplateServiceProvider extends AbstractServiceProvider
     {
         // One per request: it collects every author on the page and counts
         // their likes together. A fresh instance per field would count one each.
-        $this->container->singleton(LikesReceived::class);
+        // Scoped, not a singleton, so a long-lived worker starts each job fresh.
+        $this->container->scoped(LikesReceived::class);
     }
 }

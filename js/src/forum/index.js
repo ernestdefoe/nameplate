@@ -159,23 +159,25 @@ function line(user) {
  * earliest number SEEN so far wins, and a later post redraws without its
  * signature once an earlier one by the same member arrives.
  *
- * Only the discussion being read is kept: the map starts over when another
- * discussion's posts render, so it never grows past one thread's authors
- * however long the reader browses.
+ * Only the page being read is kept: the map starts over when Flarum opens
+ * another page (its `app.current` changes), so it never grows past one page's
+ * posts however long the reader browses. Keyed by discussion AND member, so a
+ * page mixing discussions — a member's Posts tab, search — still keeps the
+ * first signature per discussion. Scrolling a discussion keeps its page.
  */
 const firstPost = new Map();
-let firstPostDiscussion = null;
+let firstPostPage = null;
 function repeatsSignature(post) {
   const user = post.user && post.user();
   const discussion = post.discussion && post.discussion();
   if (!user || !discussion) return false;
 
-  if (discussion.id() !== firstPostDiscussion) {
+  if (app.current !== firstPostPage) {
     firstPost.clear();
-    firstPostDiscussion = discussion.id();
+    firstPostPage = app.current;
   }
 
-  const key = user.id();
+  const key = `${discussion.id()}:${user.id()}`;
   const number = post.number();
   const first = firstPost.get(key);
 

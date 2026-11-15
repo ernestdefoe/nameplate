@@ -53,8 +53,12 @@ function facts(user) {
  * Renown's insignia, rank and level, when Renown is installed. Its drawing
  * comes from Renown's own modules through Flarum's registry, so Nameplate
  * needs nothing of Renown's to run, and draws nothing when it isn't there.
+ * Looked up once: every extension's modules are registered before the first
+ * post renders, and this runs twice for every post on the page.
  */
+let renownCache;
 function renownModules() {
+  if (renownCache !== undefined) return renownCache;
   const get = (name) => {
     try {
       const mod = flarum.reg.get('ernestdefoe-renown', name);
@@ -66,7 +70,7 @@ function renownModules() {
   const Insignia = get('common/Insignia');
   const Emblem = get('common/Emblem');
   const names = get('common/names');
-  return Insignia && Emblem && names && names.levelLabel ? { Insignia, Emblem, names } : null;
+  return (renownCache = Insignia && Emblem && names && names.levelLabel ? { Insignia, Emblem, names } : null);
 }
 
 function renown(user) {
@@ -154,14 +158,24 @@ function line(user) {
  * drop it. Posts load in any order — a jump to #50 renders before #10 — so the
  * earliest number SEEN so far wins, and a later post redraws without its
  * signature once an earlier one by the same member arrives.
+ *
+ * Only the discussion being read is kept: the map starts over when another
+ * discussion's posts render, so it never grows past one thread's authors
+ * however long the reader browses.
  */
 const firstPost = new Map();
+let firstPostDiscussion = null;
 function repeatsSignature(post) {
   const user = post.user && post.user();
   const discussion = post.discussion && post.discussion();
   if (!user || !discussion) return false;
 
-  const key = `${discussion.id()}:${user.id()}`;
+  if (discussion.id() !== firstPostDiscussion) {
+    firstPost.clear();
+    firstPostDiscussion = discussion.id();
+  }
+
+  const key = user.id();
   const number = post.number();
   const first = firstPost.get(key);
 

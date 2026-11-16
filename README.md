@@ -16,9 +16,9 @@ Under each author's avatar:
 - **Best answers**, with [FoF Best Answer](https://github.com/FriendsOfFlarum/best-answer), for members who have any.
 - **Join date.**
 
-On a phone there's no side column, so the same details sit in a compact block beside the author's name:
+On a phone there's no side column, so the same details sit in one line beside the author's name, wrapping onto a second line when there's a lot to show:
 
-<img src="screenshots/phone.png" alt="On a phone: the member's groups, post count, likes, best answers and join date in a compact block beside their name" width="390">
+<img src="screenshots/phone.png" alt="On a phone: the member's groups, post count, likes, best answers and join date in one line beside their name" width="390">
 
 Prefer that compact line everywhere? It's a setting.
 

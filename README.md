@@ -5,11 +5,12 @@
 The member's panel beside every post, the way traditional forums have always
 shown it: who wrote this, and who they are on this forum.
 
-![A post with the member's panel under the avatar: their rank, post count and join date](screenshots/panel.png)
+![A post with the member's panel under the avatar: their groups, post count, likes received, best answers and join date](screenshots/panel.png)
 
 Under each author's avatar:
 
 - **Rank:** their visible groups, as coloured labels. [Ladder](https://github.com/ernestdefoe/ladder)'s post-count ranks are groups, so they show here automatically.
+- **Renown rank**, with [Renown](https://github.com/ernestdefoe/renown): their insignia, rank and level (and Prestige emblem) at the top of the panel.
 - **Posts** and, if you want it, **discussions**.
 - **Likes received**, with [Flarum Likes](https://github.com/flarum/likes).
 - **Best answers**, with [FoF Best Answer](https://github.com/FriendsOfFlarum/best-answer), for members who have any.
@@ -17,7 +18,7 @@ Under each author's avatar:
 
 On a phone there's no side column, so the same details sit in one line beside the author's name:
 
-<img src="screenshots/phone.png" alt="On a phone: the member's post count, likes and join date in one line beside their name" width="390">
+<img src="screenshots/phone.png" alt="On a phone: the member's groups, post count, likes, best answers and join date in a compact block beside their name" width="390">
 
 Prefer that compact line everywhere? It's a setting.
 
@@ -35,7 +36,7 @@ Admin → Nameplate:
 ![Nameplate's settings](screenshots/settings.png)
 
 - **Layout:** a panel under the avatar (a line on phones), or one line under the name everywhere
-- **Show:** rank, post count, discussion count, likes received, best answers and join date, each on or off
+- **Show:** rank, Renown rank, post count, discussion count, likes received, best answers and join date, each on or off
 - **Signatures:** once per discussion
 
 It uses your theme's own colours, so it fits the default theme, Bespoke and others without styling.
@@ -43,7 +44,7 @@ It uses your theme's own colours, so it fits the default theme, Bespoke and othe
 ## Good to know
 
 - **No extra load per post.** Post counts, join dates and groups already arrive with every post. Likes received is the one figure that needs counting, so it's cached for each member and refreshed whenever one of their posts is liked or unliked.
-- **Optional extensions stay optional.** Likes and best answers only appear when those extensions are installed; nothing breaks without them.
+- **Optional extensions stay optional.** Likes, best answers, signatures and Renown only appear when those extensions are installed; nothing breaks without them.
 
 ## Installation
 

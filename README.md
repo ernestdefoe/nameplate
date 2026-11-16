@@ -1,5 +1,7 @@
 # Nameplate
 
+[![Floxum code review](https://floxum.com/extension/ernestdefoe/nameplate/badge/review)](https://floxum.com/extension/ernestdefoe/nameplate#code-review)
+
 The member's panel beside every post, the way traditional forums have always
 shown it: who wrote this, and who they are on this forum.
 
